@@ -19,7 +19,7 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
     }
 
     let mut total_bytes_read = 0usize;
-    let total_file_size = file.metadata()?.len();
+    let total_file_size = file.metadata()?.len() as usize;
     while let Ok(bytes_read) = file.read(&mut buffer) {
         if bytes_read == 0 {
             break; // EOF
@@ -27,9 +27,10 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
 
         total_bytes_read += bytes_read;
         if total_bytes_read % (1024 * CHUNK_SIZE) == 0 {
-            println!("Read {}/{} MiB of {}",
+            println!("Read {}/{} MiB ({}%) of {}",
                      total_bytes_read / (1024 * 1024),
                      total_file_size / (1024 * 1024),
+                     (total_bytes_read * 100) / total_file_size,
                      file_name);
         }
 
@@ -48,5 +49,6 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
         }
     }
 
+    println!("Finished reading {}", file_name);
     Ok(())
 }
