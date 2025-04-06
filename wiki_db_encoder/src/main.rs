@@ -9,7 +9,6 @@ use bincode::config;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
-
 fn main() -> Result<()> {
     let mut page: HashMap<(i16, String), u32> = HashMap::new();
     parse_sql_file(
