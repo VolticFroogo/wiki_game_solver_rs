@@ -17,10 +17,6 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
     file_seek_to_values(&mut file, &mut buffer)?;
 
     while let Ok(bytes_read) = file.read(&mut buffer) {
-        if bytes_read == 0 {
-            break; // EOF
-        }
-
         total_bytes_read += bytes_read;
         print_progress(file_name, file_size, &total_bytes_read);
 
@@ -39,6 +35,8 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
     Ok(())
 }
 
+// Seek to the first occurrence of "VALUES" in the file
+// This prevents finding matches outside the VALUES section
 fn file_seek_to_values(file: &mut File, mut buffer: &mut [u8]) -> Result<()> {
     let bytes_read = file.read(&mut buffer)?;
     let bytes_as_string = String::from_utf8_lossy(&buffer[..bytes_read]);
@@ -53,6 +51,7 @@ fn file_seek_to_values(file: &mut File, mut buffer: &mut [u8]) -> Result<()> {
     Ok(())
 }
 
+// To prevent missing matches in between chunks, we seek back to the end of the last match
 fn file_seek_to_end_of_last_match(file: &mut File, last_capture: Option<&Captures>) -> Result<()> {
     if let Some(cap) = last_capture {
         let last = cap.iter().last().unwrap().unwrap();
