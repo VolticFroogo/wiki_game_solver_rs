@@ -5,55 +5,60 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
-use bincode::config;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
 fn main() -> Result<()> {
-    let mut page: HashMap<(i16, String), u32> = HashMap::new();
+    let mut page: HashMap<String, u32> = HashMap::new();
     parse_sql_file(
         "enwiki-latest-page.sql",
-        Regex::new(r"\((\d+),(-?\d+),'((?:[^'\\]|\\.)*)',[\w\d.,']+\)").unwrap(),
+        Regex::new(r"\((\d+),0,'((?:[^'\\]|\\.)*)',[\w\d.,']+\)").unwrap(),
         |cap| {
             let page_id = cap[1].parse::<u32>().unwrap();
-            let namespace = cap[2].parse::<i16>().unwrap();
-            let title = cap[3].to_string();
+            let title = cap[2].to_string();
 
-            page.insert((namespace, title), page_id);
+            page.insert(title, page_id);
         })?;
 
     let mut link_target: HashMap<u32, u32> = HashMap::new();
     parse_sql_file(
         "enwiki-latest-linktarget.sql",
-        Regex::new(r"\((\d+),(-?\d+),'((?:[^'\\]|\\.)*)'\)").unwrap(),
+        Regex::new(r"\((\d+),0,'((?:[^'\\]|\\.)*)'\)").unwrap(),
         |cap| {
             let link_target_id = cap[1].parse::<u32>().unwrap();
-            let namespace = cap[2].parse::<i16>().unwrap();
-            let title = cap[3].to_string();
+            let title = &cap[2];
 
-            if let Some(page_id) = page.get(&(namespace, title)) {
+            if let Some(page_id) = page.get(title) {
                 link_target.insert(link_target_id, *page_id);
             }
         })?;
 
     page.clear();
 
-    let mut links: HashMap<u32, u32> = HashMap::new();
+    let mut links: HashMap<u32, Vec<u32>> = HashMap::new();
     parse_sql_file(
         "enwiki-latest-pagelinks.sql",
-        Regex::new(r"\((\d+),-?\d+,(\d+)\)").unwrap(),
+        Regex::new(r"\((\d+),0,(\d+)\)").unwrap(),
         |cap| {
             let from_page_id = cap[1].parse::<u32>().unwrap();
             let to_link_target_id = cap[2].parse::<u32>().unwrap();
 
             if let Some(to_page_id) = link_target.get(&to_link_target_id) {
-                links.insert(from_page_id, *to_page_id);
+                if let Some(from_page_vec) = links.get_mut(&from_page_id) {
+                    from_page_vec.push(*to_page_id);
+                } else {
+                    links.insert(from_page_id, vec![*to_page_id]);
+                }
             }
         })?;
 
+    println!("Found {} links, writing bincode to links.bin", links.len());
+
     // Using Bincode, encode links to a file
     let mut file = File::create("links.bin")?;
-    bincode::encode_into_std_write(&links, &mut file, config::standard())?;
+    bincode::encode_into_std_write(&links, &mut file, bincode::config::standard())?;
+
+    println!("Finished writing {} MiB to links.bin", file.metadata()?.len() / (1024 * 1024));
 
     Ok(())
 }
