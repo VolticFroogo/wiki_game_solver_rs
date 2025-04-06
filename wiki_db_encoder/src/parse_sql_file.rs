@@ -39,7 +39,7 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
     Ok(())
 }
 
-fn file_seek_to_values(file: &mut File, mut buffer: &[u8; CHUNK_SIZE]) -> Result<(> {
+fn file_seek_to_values(file: &mut File, mut buffer: &mut [u8]) -> Result<()> {
     let bytes_read = file.read(&mut buffer)?;
     let bytes_as_string = String::from_utf8_lossy(&buffer[..bytes_read]);
 
