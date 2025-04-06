@@ -36,6 +36,7 @@ fn main() -> Result<()> {
     page.clear();
 
     let mut links: HashMap<u32, Vec<u32>> = HashMap::new();
+    let mut link_count = 0u32;
     parse_sql_file(
         "enwiki-latest-pagelinks.sql",
         Regex::new(r"\((\d+),0,(\d+)\)").unwrap(),
@@ -44,6 +45,8 @@ fn main() -> Result<()> {
             let to_link_target_id = cap[2].parse::<u32>().unwrap();
 
             if let Some(to_page_id) = link_target.get(&to_link_target_id) {
+                link_count += 1;
+
                 if let Some(from_page_vec) = links.get_mut(&from_page_id) {
                     from_page_vec.push(*to_page_id);
                 } else {
@@ -52,7 +55,7 @@ fn main() -> Result<()> {
             }
         })?;
 
-    println!("Found {} links, writing bincode to links.bin", links.len());
+    println!("Found {} links, writing bincode to links.bin", link_count);
 
     // Using Bincode, encode links to a file
     let mut file = File::create("links.bin")?;
