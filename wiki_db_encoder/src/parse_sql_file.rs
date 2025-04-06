@@ -18,9 +18,19 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
         return Err("Could not find 'VALUES' in the file".into());
     }
 
+    let mut total_bytes_read = 0usize;
+    let total_file_size = file.metadata()?.len();
     while let Ok(bytes_read) = file.read(&mut buffer) {
         if bytes_read == 0 {
             break; // EOF
+        }
+
+        total_bytes_read += bytes_read;
+        if total_bytes_read % (1024 * CHUNK_SIZE) == 0 {
+            println!("Read {}/{} MiB of {}",
+                     total_bytes_read / (1024 * 1024),
+                     total_file_size / (1024 * 1024),
+                     file_name);
         }
 
         let bytes_as_string = String::from_utf8_lossy(&buffer[..bytes_read]);
