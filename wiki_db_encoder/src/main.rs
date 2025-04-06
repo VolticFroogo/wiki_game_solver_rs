@@ -55,7 +55,7 @@ fn main() -> Result<()> {
             }
         })?;
 
-    println!("Found {} links, writing bincode to links.bin", link_count);
+    println!("Found {} links from {} pages, writing bincode to links.bin", link_count, links.len());
 
     // Using Bincode, encode links to a file
     let mut file = File::create("links.bin")?;
