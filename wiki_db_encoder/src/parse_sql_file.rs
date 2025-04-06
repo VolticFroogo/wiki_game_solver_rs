@@ -1,11 +1,14 @@
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
+use std::time::Instant;
 use regex::{Captures, Regex};
 use crate::Result;
 
 const CHUNK_SIZE: usize = 64 * 1024;
 
 pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut func: F) -> Result<()> {
+    let start = Instant::now();
+
     let mut file = File::open(file_name)?;
     let mut buffer = [0u8; CHUNK_SIZE];
 
@@ -49,6 +52,6 @@ pub fn parse_sql_file<F: FnMut(&Captures)>(file_name: &str, regex: Regex, mut fu
         }
     }
 
-    println!("Finished reading {}", file_name);
+    println!("Finished reading {} in {}s", file_name, start.elapsed().as_secs());
     Ok(())
 }
