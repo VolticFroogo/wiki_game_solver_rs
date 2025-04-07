@@ -5,6 +5,8 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
+use std::io::BufWriter;
+use std::time::Instant;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
@@ -57,13 +59,23 @@ fn main() -> Result<()> {
             }
         })?;
 
+    write_to_bincode_file(&links, &link_count)?;
+
+    Ok(())
+}
+
+// Using Bincode, encode links to a file
+fn write_to_bincode_file(links: &HashMap<u32, Vec<u32>>, link_count: &u32) -> Result<()> {
     println!("Found {} links from {} pages, writing bincode to links.bin", link_count, links.len());
 
-    // Using Bincode, encode links to a file
-    let mut file = File::create("links.bin")?;
-    bincode::encode_into_std_write(&links, &mut file, bincode::config::standard())?;
+    let start = Instant::now();
+    let file = File::create("links.bin")?;
+    let mut buffered_file = BufWriter::new(file);
+    bincode::encode_into_std_write(&links, &mut buffered_file, bincode::config::standard())?;
 
-    println!("Finished writing {} MiB to links.bin", file.metadata()?.len() / (1024 * 1024));
+    println!("Finished writing {} MiB to links.bin in {}s",
+             buffered_file.get_ref().metadata()?.len() / (1024 * 1024),
+             start.elapsed().as_secs());
 
     Ok(())
 }
