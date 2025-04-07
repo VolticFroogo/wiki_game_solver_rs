@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 
@@ -18,13 +19,22 @@ pub(crate) fn get_link_data() -> crate::Result<LinkData> {
 }
 
 fn read_links_from_file() -> crate::Result<HashMap<u32, Vec<u32>>> {
-    let mut links_file = File::open("links.bin")?;
+    while !fs::exists("links/links.bin")? {
+        println!("links.bin not found, sleeping 5s");
+        std::thread::sleep(std::time::Duration::from_secs(5));
+    }
+
+    let mut links_file = File::open("links/links.bin")?;
+    fs2::FileExt::lock_shared(&links_file)?;
+
     println!("Reading links.bin ({} MiB) bincode", links_file.metadata()?.len() / (1024 * 1024));
 
     let mut buffered_links_file = BufReader::new(&mut links_file);
 
     let links: HashMap<u32, Vec<u32>> =
         bincode::decode_from_reader(&mut buffered_links_file, bincode::config::standard())?;
+
+    fs2::FileExt::unlock(&links_file)?;
 
     println!("Read {} pages with links from links.bin", links.len());
     Ok(links)
