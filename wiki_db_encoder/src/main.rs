@@ -8,6 +8,8 @@ use std::fs::File;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
+// Parse the SQL files and extract a map of page ID to vector of page IDs it links to
+// TODO: explain logic and DB structure
 fn main() -> Result<()> {
     let mut page: HashMap<String, u32> = HashMap::new();
     parse_sql_file(
