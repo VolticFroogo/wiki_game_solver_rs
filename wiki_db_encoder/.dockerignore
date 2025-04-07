@@ -1,0 +1,17 @@
+# IDE configuration files
+.idea/
+*.iml
+
+# Compiled artifacts
+target/
+
+# Environment variables
+*.env
+*.env.example
+
+# Git files
+.git*
+
+# Binary files
+*.bin
+*.sql

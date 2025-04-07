@@ -1,0 +1,16 @@
+services:
+  app:
+    build: wiki_game_solver_web
+    container_name: wiki_game_solver_web
+    restart: unless-stopped
+    volumes:
+      - ./links:/usr/src/wiki_game_solver_web/links:ro
+    ports:
+      - "8080:8080"
+  db_encoder:
+    build: wiki_db_encoder
+    container_name: wiki_db_encoder
+    restart: unless-stopped
+    volumes:
+      - ./links:/usr/src/wiki_db_encoder/links
+      - ./sql:/usr/src/wiki_db_encoder/sql:ro
