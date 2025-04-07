@@ -2,6 +2,7 @@ use std::collections::{HashMap, VecDeque};
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
+use std::time::Instant;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
@@ -15,6 +16,8 @@ fn main() -> Result<()> {
         bincode::decode_from_reader(&mut buffered_links_file, bincode::config::standard())?;
 
     println!("Read {} pages with links from links.bin", links.len());
+
+    let start_time = Instant::now();
 
     let mut link_queue: VecDeque<u32> = VecDeque::new();
     let mut seen_by: HashMap<u32, u32> = HashMap::new();
@@ -42,8 +45,6 @@ fn main() -> Result<()> {
         }
     }
 
-    link_queue.clear();
-
     if !seen_by.contains_key(&target) {
         println!("No path found from {} to {}", start, target);
         return Ok(());
@@ -61,10 +62,8 @@ fn main() -> Result<()> {
     }
     path.push(start);
 
-    for node in path.iter().rev() {
-        print!("{}|", node);
-    }
-    println!();
+    print!("Path from {} to {} (found in {}s): ", start, target, start_time.elapsed().as_secs_f64());
+    print!("{}", path.iter().rev().map(|x| x.to_string()).collect::<Vec<String>>().join("|"));
 
     Ok(())
 }
