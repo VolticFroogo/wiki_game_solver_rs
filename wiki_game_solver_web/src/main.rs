@@ -21,8 +21,8 @@ fn main() -> Result<()> {
 
     let mut link_queue: VecDeque<u32> = VecDeque::new();
     let mut seen_by: HashMap<u32, u32> = HashMap::new();
-    let start = 62877952;
-    let target = 29086544;
+    let start = 6912103;
+    let target = 45567357;
 
     link_queue.push_back(start);
     seen_by.insert(start, start);
@@ -62,7 +62,7 @@ fn main() -> Result<()> {
     }
     path.push(start);
 
-    print!("Path from {} to {} (found in {}s): ", start, target, start_time.elapsed().as_secs_f64());
+    print!("Path from {} to {} (found in {}ms): ", start, target, start_time.elapsed().as_millis());
     print!("{}", path.iter().rev().map(|x| x.to_string()).collect::<Vec<String>>().join("|"));
 
     Ok(())
