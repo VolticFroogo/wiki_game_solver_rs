@@ -1,0 +1,7 @@
+[package]
+name = "wiki_game_solver_web"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bincode = "2.0.1"
