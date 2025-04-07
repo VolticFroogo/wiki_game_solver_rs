@@ -50,12 +50,7 @@ fn main() -> Result<()> {
 
             if let Some(to_page_id) = link_target.get(&to_link_target_id) {
                 link_count += 1;
-
-                if let Some(from_page_vec) = links.get_mut(&from_page_id) {
-                    from_page_vec.push(*to_page_id);
-                } else {
-                    links.insert(from_page_id, vec![*to_page_id]);
-                }
+                links.entry(from_page_id).or_insert_with(Vec::new).push(*to_page_id);
             }
         })?;
 
