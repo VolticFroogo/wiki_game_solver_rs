@@ -57,7 +57,7 @@ fn write_to_bincode_file(links: &HashMap<u32, Vec<u32>>) -> crate::Result<()> {
     println!("Found {} pages with links, writing to links.bin", links.len());
 
     let start = Instant::now();
-    let file = File::create("links.bin")?;
+    let file = File::create("links/links.bin.tmp")?;
     let mut buffered_file = BufWriter::new(file);
     bincode::encode_into_std_write(&links, &mut buffered_file, bincode::config::standard())?;
 
@@ -67,7 +67,7 @@ fn write_to_bincode_file(links: &HashMap<u32, Vec<u32>>) -> crate::Result<()> {
 
     let moved_file = File::create("links/links.bin")?;
     fs2::FileExt::lock_exclusive(&moved_file)?;
-    std::fs::rename("links.bin", "links/links.bin")?;
+    std::fs::rename("links/links.bin.tmp", "links/links.bin")?;
     fs2::FileExt::unlock(&moved_file)?;
 
     Ok(())
