@@ -7,3 +7,8 @@ edition = "2024"
 bincode = "2.0.1"
 regex = "1.11.1"
 fs2 = "0"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0", features = ["io"] }
+reqwest = { version = "0", features = ["stream"] }
+async-compression = { version = "0", features = ["tokio", "gzip"] }
+futures-util = "0"

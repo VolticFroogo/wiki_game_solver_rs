@@ -13,4 +13,3 @@ services:
     restart: unless-stopped
     volumes:
       - ./links:/usr/src/wiki_db_encoder/links
-      - ./sql:/usr/src/wiki_db_encoder/sql:ro
