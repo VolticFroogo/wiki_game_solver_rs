@@ -5,8 +5,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./links:/usr/src/wiki_game_solver_web/links:ro
-    ports:
-      - "80:80"
   db_encoder:
     build: wiki_db_encoder
     container_name: wiki_db_encoder
