@@ -6,7 +6,7 @@ services:
     volumes:
       - ./links:/usr/src/wiki_game_solver_web/links:ro
     ports:
-      - "8080:8080"
+      - "80:80"
   db_encoder:
     build: wiki_db_encoder
     container_name: wiki_db_encoder
