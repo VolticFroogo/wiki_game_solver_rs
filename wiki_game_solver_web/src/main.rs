@@ -3,7 +3,6 @@ mod endpoints;
 
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use notify::Watcher;
 use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::RwLock;
