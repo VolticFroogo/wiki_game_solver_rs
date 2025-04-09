@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
             .app_data(Data::new(link_data.clone()))
             .service(endpoints::solve)
     })
-    .bind(("0.0.0.0", 80))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await?;
 
