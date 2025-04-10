@@ -29,7 +29,7 @@ pub(crate) async fn watch_file(link_data: Arc<RwLock<Option<LinkData>>>) -> crat
 
                 last_event_time = Some(Instant::now());
 
-                update_link_data(link_data).await?;
+                update_link_data(link_data.clone()).await?;
             },
             Err(e) => eprintln!("File watcher change error: {:?}", e),
         }
