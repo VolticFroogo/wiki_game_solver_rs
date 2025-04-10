@@ -2,12 +2,11 @@ mod link_data;
 mod file_watcher;
 
 use std::collections::HashMap;
-use tokio::sync::RwLockReadGuard;
 pub(crate) use crate::bfs::link_data::get_link_data;
 pub(crate) use crate::bfs::link_data::LinkData;
 pub(crate) use crate::bfs::file_watcher::watch_file;
 
-pub(crate) fn bfs_bidirectional(link_data: RwLockReadGuard<LinkData>, start: u32, target: u32) -> Option<Vec<u32>> {
+pub(crate) fn bfs_bidirectional(link_data: &LinkData, start: u32, target: u32) -> Option<Vec<u32>> {
     let mut forward_link_queue: Vec<u32> = Vec::new();
     let mut reverse_link_queue: Vec<u32> = Vec::new();
     let mut forward_seen_by: HashMap<u32, u32> = HashMap::new();

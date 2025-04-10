@@ -16,19 +16,25 @@ struct Query {
 #[derive(Serialize)]
 struct Response {
     path: Vec<u32>,
+
+    #[serde(rename = "secondsTaken")]
     seconds_taken: f64,
 }
 
 #[get("/solve")]
-pub async fn solve(link_data: web::Data<Arc<RwLock<LinkData>>>, query: web::Query<Query>) -> impl Responder {
+pub async fn solve(link_data: web::Data<Arc<RwLock<Option<LinkData>>>>, query: web::Query<Query>) -> impl Responder {
     let link_data = link_data.read().await;
+    if link_data.is_none() {
+        return HttpResponse::ServiceUnavailable().body("{\"error\":\"Link data loading...\"}");
+    }
+    let link_data = link_data.as_ref().unwrap();
 
     let start_time = Instant::now();
 
     let path = bfs::bfs_bidirectional(link_data, query.start, query.target);
     if path.is_none() {
         println!("Path determined unreachable in {}s", start_time.elapsed().as_secs_f64());
-        return HttpResponse::UnprocessableEntity().body("abc");
+        return HttpResponse::UnprocessableEntity().body("{\"error\":\"Path not found\"}");
     }
     let path = path.unwrap();
 
