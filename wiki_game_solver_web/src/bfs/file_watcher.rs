@@ -21,9 +21,9 @@ pub(crate) async fn watch_file(link_data: Arc<RwLock<Option<LinkData>>>) -> crat
                     continue;
                 }
 
-                // Ignore events within 1 minute of the last seen event
+                // Ignore events within 5 minutes of the last seen event
                 if last_event_time.is_some_and(|last_seen|
-                    last_seen.elapsed().as_secs() < 60) {
+                    last_seen.elapsed().as_secs() < 5 * 60) {
                     continue;
                 }
 
