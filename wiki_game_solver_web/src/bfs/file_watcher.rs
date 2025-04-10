@@ -29,17 +29,22 @@ pub(crate) async fn watch_file(link_data: Arc<RwLock<Option<LinkData>>>) -> crat
 
                 last_event_time = Some(Instant::now());
 
-                println!("File watcher detected modification of links.bin, waiting 1m before reloading...");
-                tokio::time::sleep(std::time::Duration::from_secs(60)).await;
-
-                let link_data_new = bfs::get_link_data()?;
-                let mut link_data_acquired = link_data.write().await;
-                *link_data_acquired = Some(link_data_new);
+                update_link_data(link_data).await?;
             },
             Err(e) => eprintln!("File watcher change error: {:?}", e),
         }
     }
 
+    Ok(())
+}
+
+async fn update_link_data(link_data: Arc<RwLock<Option<LinkData>>>) -> crate::Result<()> {
+    println!("File watcher detected modification of links.bin, waiting 1m before reloading...");
+    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+
+    let link_data_new = bfs::get_link_data()?;
+    let mut link_data_acquired = link_data.write().await;
+    *link_data_acquired = Some(link_data_new);
     Ok(())
 }
 
